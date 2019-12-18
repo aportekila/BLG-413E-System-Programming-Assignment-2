@@ -1,5 +1,7 @@
 # BLG-413E-System-Programming-Assignment-2
 
+The differences made by me is under differences directory and you can see the differences.txt to see the different parts with the original kernel.
+
 ## Table of contents
 <!--ts-->
   * [Compile the Kernel](#compile-the-kernel)
