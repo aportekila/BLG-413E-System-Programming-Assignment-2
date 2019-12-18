@@ -1,0 +1,114 @@
+diff -r dnt_chng_linux-source-3.13.0/arch/x86/syscalls/syscall_32.tbl my_linux-source-3.13.0/arch/x86/syscalls/syscall_32.tbl
+363a364,365
+> 355	i386	set_nice_inc			set_nice_inc
+> 356	i386	get_nice_inc			get_nice_inc
+diff -r dnt_chng_linux-source-3.13.0/include/linux/init_task.h my_linux-source-3.13.0/include/linux/init_task.h
+163a164
+> 	.nice_inc		= 0,						\
+diff -r dnt_chng_linux-source-3.13.0/include/linux/sched.h my_linux-source-3.13.0/include/linux/sched.h
+1058a1059,1064
+> 	
+> 	/*
+> 	 * Start of the Modification
+> 	 */
+> 	
+> 	int nice_inc;
+1059a1066,1070
+> 	
+> 	/*
+> 	 * End of the Modification
+> 	 */
+> 	
+diff -r dnt_chng_linux-source-3.13.0/include/linux/syscalls.h my_linux-source-3.13.0/include/linux/syscalls.h
+851a852,854
+> 
+> asmlinkage long set_nice_inc(pid_t pid, int value);
+> asmlinkage long get_nice_inc(pid_t pid);
+diff -r dnt_chng_linux-source-3.13.0/kernel/exit.c my_linux-source-3.13.0/kernel/exit.c
+594a595,617
+> 
+> /*
+>  * Start of the Modification
+>  */
+> 
+> static void nice_value_handler(struct task_struct *t, int new_nice){
+> 	
+> 	struct list_head *process_list;
+> 	struct task_struct *task; 
+> 	list_for_each(process_list, &t->children){
+> 		task = list_entry(process_list, struct task_struct, sibling);
+> 		set_user_nice(task, new_nice);
+> 		int temp;
+> 		temp = new_nice + task->nice_inc;
+> 		nice_value_handler(task, temp);
+> 	}
+> 
+> }
+> 
+> /*
+>  * End of the Modification
+>  */
+> 
+618a642,655
+> 						    
+> 			/*
+> 			 * Start of the Modification
+> 			 */
+> 			
+> 			int new_nice = task_nice(t->real_parent) + t->real_parent->nice_inc;
+> 			set_user_nice(t, new_nice);
+> 			int temp;
+> 			temp = new_nice + t->nice_inc;
+> 			nice_value_handler(t, temp);
+> 			
+> 			/*
+> 			 * End of the Modification
+> 			 */
+631a669,671
+> 
+> 
+> 
+703a744,746
+> 
+> 	
+> 
+705c748
+< {
+---
+> {	
+diff -r dnt_chng_linux-source-3.13.0/kernel/fork.c my_linux-source-3.13.0/kernel/fork.c
+1572a1573,1581
+> 	/*
+> 	 * Start of the Modification
+> 	 */
+> 	
+> 	p->nice_inc = p->real_parent->nice_inc;
+> 	
+> 	/*
+> 	 * End of the Modification
+> 	 */
+1573a1583
+> 	
+1678a1689,1691
+> 			 
+> 	
+> 	
+1715a1729,1740
+> 	/*
+> 	 * Start of the Modification
+> 	 */
+> 	
+> 	if (current->nice_inc != 0){
+> 		set_user_nice(p, task_nice(current) + current->nice_inc);
+> 	}
+> 	
+> 	/*
+> 	 * End of the Modification
+> 	 */
+> 	
+diff -r dnt_chng_linux-source-3.13.0/Makefile my_linux-source-3.13.0/Makefile
+540c540
+< core-y		:= usr/
+---
+> core-y		:= usr/ my_syscalls/set_nice_inc/ my_syscalls/get_nice_inc/ 
+Only in my_linux-source-3.13.0: my_syscalls
