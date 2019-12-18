@@ -29,8 +29,8 @@ Select Advanced Options -> linux-image-3.13.11.custom..
 ### Test the Kernel
 To test my test code;
 ```bash
-	cd test
-	sudo ./test
+cd test
+sudo ./test
 ```
 ***Note:*** You need to run as root.
 
